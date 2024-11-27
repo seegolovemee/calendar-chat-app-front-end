@@ -1,3 +1,17 @@
+## Download
+npm create vite@latest calendar-chat-app
+npm install lucide-react date-fns
+npm install -D tailwindcss postcss autoprefixer eslint @tailwindcss/forms
+
+https://ui.shadcn.com/docs/installation/vite
+@/components/ui/resizable
+npx shadcn-ui@latest add resizable
+
+## Run
+npm run dev
+
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

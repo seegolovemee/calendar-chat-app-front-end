@@ -1,4 +1,3 @@
-// src/components/chat/ChatSidebar.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { X, MoreHorizontal, Send } from "lucide-react";
 import type { Message } from "../../types";
@@ -19,7 +18,6 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ onClose }) => {
   ]);
   const [inputMessage, setInputMessage] = useState("");
 
-  // 添加这个 useEffect
   useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop =
@@ -50,7 +48,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed right-0 top-0 h-screen w-80 bg-white border-l border-gray-200 flex flex-col">
+    <div className="h-full bg-white border-l border-gray-200 flex flex-col">
+
       {/* 聊天头部 */}
       <div className="p-4 border-b border-gray-200 flex justify-between items-center">
         <div className="flex items-center gap-2">
