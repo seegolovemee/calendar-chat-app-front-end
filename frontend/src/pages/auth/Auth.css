@@ -1,0 +1,110 @@
+/* Parent container to split the screen */
+.auth-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    height: 100vh;
+    /* Full height of the viewport */
+    width: 100vw;
+    /* Full width of the viewport */
+    font-family: Arial, sans-serif;
+}
+
+/* Left section: Form container */
+.auth-left {
+    background-color: #ffffff;
+    /* White background */
+    flex: 1;
+    /* Take 50% of the width */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Center vertically */
+    align-items: center;
+    /* Center horizontally */
+    padding: 2rem;
+    box-sizing: border-box;
+    /* Include padding in the width calculation */
+}
+
+/* Right section: Full color */
+.auth-right {
+    background-color: #4343e0;
+    /* Blue background */
+    flex: 1;
+    /* Take 50% of the width */
+    display: flex;
+    justify-content: center;
+    /* Center horizontally */
+    align-items: center;
+    /* Center vertically */
+    color: white;
+    /* Text color */
+    font-size: 2rem;
+    /* Large text size */
+    font-weight: bold;
+    text-align: center;
+    box-sizing: border-box;
+    /* Include padding in the width calculation */
+}
+
+/* Heading styling for form */
+.auth-left h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* Form layout */
+.auth-left form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* Full width */
+    max-width: 400px;
+    /* Limit the form width */
+}
+
+/* Input field styling */
+.auth-left input {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+    /* Full width */
+    box-sizing: border-box;
+    /* Include padding in the width calculation */
+}
+
+/* Button styling */
+.auth-left button {
+    background-color: #4343e0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 300ms, transform 200ms;
+}
+
+.auth-left button:hover {
+    background-color: #3333c4;
+    transform: scale(1.05);
+    /* Scale slightly on hover */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .auth-left h1 {
+        font-size: 2rem;
+    }
+
+    .auth-right {
+        font-size: 1.5rem;
+        padding: 1rem;
+    }
+}
