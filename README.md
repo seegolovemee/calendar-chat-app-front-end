@@ -7,6 +7,11 @@ https://ui.shadcn.com/docs/installation/vite
 @/components/ui/resizable
 npx shadcn-ui@latest add resizable
 
+
+
+npm install react-router-dom
+npm install recharts
+
 ## Run
 npm run dev
 

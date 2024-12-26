@@ -8,8 +8,8 @@ interface EventModalProps {
   onClose: () => void;
   onSave: (event: Omit<CalendarEvent, 'id'>) => void;
   selectedDate: Date;
-  selectedStartHour?: number;
-  selectedEndHour?: number;
+  selectedStartHour?: number | null;
+  selectedEndHour?: number | null;
 }
 
 export const EventModal: React.FC<EventModalProps> = ({

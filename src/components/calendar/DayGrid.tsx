@@ -1,85 +1,134 @@
 // components/calendar/DayGrid.tsx
 import React from 'react';
-import { format } from 'date-fns';
-import { CalendarEvent } from '../../types/calendar';
+import { format, addHours, isSameHour, isWithinInterval, startOfDay, getHours } from 'date-fns';
+import { CalendarEvent as ICalendarEvent } from '../../types/calendar';
+import { CalendarEvent } from './CalendarEvent';
 
 interface DayGridProps {
   date: Date;
-  events: CalendarEvent[];
-  onEventClick?: (event: CalendarEvent) => void;
-  selectedTime: number | null;
-  onTimeSelect: (hour: number) => void;
+  events: ICalendarEvent[];
+  onEventClick?: (event: ICalendarEvent) => void;
+  onTimeSlotClick?: (date: Date, hour: number) => void; // 修改为传递完整日期
+  selectedSlot?: {
+    date: Date;
+    hour: number;
+  } | null; // 修改选中状态的数据结构
 }
+
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 export const DayGrid: React.FC<DayGridProps> = ({
   date,
   events,
   onEventClick,
-  selectedTime,
-  onTimeSelect
+  onTimeSlotClick,
+  selectedSlot
 }) => {
-  // 生成24小时的时间槽
-  const timeSlots = Array.from({ length: 24 }, (_, i) => i);
-
   const getEventsForHour = (hour: number) => {
+    const currentHourDate = addHours(startOfDay(date), hour);
+    
     return events.filter(event => {
-      const eventHour = event.start.getHours();
-      return eventHour === hour;
+      if (event.isAllDay) return false;
+      
+      return isWithinInterval(currentHourDate, {
+        start: event.start,
+        end: event.end
+      }) || isSameHour(event.start, currentHourDate);
     });
   };
 
-  // 判断时间槽是否被选中
-  const isTimeSelected = (hour: number) => {
-    return hour === selectedTime;
+  // 检查时间槽是否被选中
+  const isSlotSelected = (hour: number) => {
+    if (!selectedSlot) return false;
+    const currentDate = startOfDay(date);
+    const selectedDate = startOfDay(selectedSlot.date);
+    return currentDate.getTime() === selectedDate.getTime() && selectedSlot.hour === hour;
   };
 
   return (
+    <div className="flex flex-col h-full border-l border-t">
+      {HOURS.map(hour => {
+        const hourEvents = getEventsForHour(hour);
+        const timeLabel = format(addHours(startOfDay(date), hour), 'HH:mm');
+        const isSelected = isSlotSelected(hour);
+        
+        return (
+          <div 
+            key={hour}
+            className={`
+              flex min-h-[60px] border-b border-r relative group cursor-pointer
+              transition-colors duration-200
+              ${isSelected ? 'bg-blue-600 bg-opacity-10' : 'hover:bg-gray-50'}
+            `}
+            onClick={() => onTimeSlotClick?.(date, hour)}
+          >
+            {/* 时间标签 */}
+            <div className={`
+              absolute -left-16 top-0 w-14 text-right pr-2 text-sm
+              ${isSelected ? 'text-blue-700 font-medium' : 'text-gray-500'}
+            `}>
+              {timeLabel}
+            </div>
+
+            {/* 时间格子内容 */}
+            <div className="flex-1 p-1">
+              {/* 显示当前小时的事件 */}
+              <div className="space-y-1">
+                {hourEvents.map(event => (
+                  <CalendarEvent
+                    key={event.id}
+                    event={event}
+                    onClick={(e) => {
+                      e.stopPropagation(); // 防止触发时间槽点击
+                      onEventClick?.(event);
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* 添加新事件的提示 */}
+              {hourEvents.length === 0 && (
+                <div className={`
+                  hidden group-hover:block text-xs text-center pt-4
+                  ${isSelected ? 'text-blue-600' : 'text-gray-400'}
+                `}>
+                  Click to add event
+                </div>
+              )}
+            </div>
+
+            {/* 当前时间指示器 */}
+            {isSameHour(new Date(), addHours(startOfDay(date), hour)) && (
+              <div className="absolute left-0 right-0 border-t-2 border-red-400 top-1/2 transform -translate-y-1/2" />
+            )}
+
+            {/* 选中状态指示器 */}
+            {isSelected && (
+              <div className="absolute left-0 top-0 h-full w-1 bg-blue-600" />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export const DayView: React.FC<DayGridProps> = (props) => {
+  return (
     <div className="flex flex-col h-full">
       {/* 日期头部 */}
-      <div className="text-center py-4 mb-4">
-        <div className="font-semibold text-2xl">{format(date, 'EEEE')}</div>
-        <div className="text-gray-500 text-lg">{format(date, 'MMMM d, yyyy')}</div>
+      <div className="text-center py-4 border-b">
+        <div className="text-lg font-semibold">
+          {format(props.date, 'EEEE')}
+        </div>
+        <div className="text-gray-500">
+          {format(props.date, 'MMMM d, yyyy')}
+        </div>
       </div>
 
-      {/* 时间格子 */}
-      <div className="flex-1 overflow-y-auto">
-        {timeSlots.map(hour => (
-          <div 
-            key={hour} 
-            className={`flex border-b border-gray-100 min-h-[60px] cursor-pointer
-              ${isTimeSelected(hour) ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
-            onClick={() => onTimeSelect(hour)}
-          >
-            {/* 时间列 */}
-            <div className="w-20 py-2 text-right pr-4 text-gray-500 select-none">
-              {format(new Date().setHours(hour), 'HH:mm')}
-            </div>
-            {/* 事件区域 */}
-            <div className="flex-1 relative">
-              {getEventsForHour(hour).map(event => (
-                <div
-                  key={event.id}
-                  onClick={(e) => {
-                    e.stopPropagation(); // 阻止事件冒泡
-                    onEventClick?.(event);
-                  }}
-                  className="absolute left-0 right-2 px-3 py-1 m-1 rounded 
-                    bg-blue-100 text-blue-600 cursor-pointer hover:bg-blue-200"
-                  style={{
-                    top: `${(event.start.getMinutes() / 60) * 100}%`,
-                    height: `${((event.end.getTime() - event.start.getTime()) / (1000 * 60 * 60)) * 100}%`,
-                    minHeight: '20px'
-                  }}
-                >
-                  <div className="font-medium truncate">{event.title}</div>
-                  <div className="text-xs">
-                    {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+      {/* 时间格子部分 */}
+      <div className="flex-1 overflow-y-auto pl-16 relative">
+        <DayGrid {...props} />
       </div>
     </div>
   );
